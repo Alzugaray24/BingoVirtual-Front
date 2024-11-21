@@ -14,6 +14,10 @@ import {
 } from "../store/slices/successMessageSlice";
 import useSocket from "../hooks/useSocket";
 import { CircularProgress, Box, Typography, Button } from "@mui/material";
+import GameList from "../components/game/GameList";
+import CurrentGame from "../components/game/CurrentGame";
+import SuccessMessage from "../components/game/SuccessMessage";
+import ErrorMessage from "../components/game/ErrorMessage";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -121,17 +125,8 @@ const Home = () => {
         Bingo Virtual - Inicio
       </Typography>
 
-      {successMessage && (
-        <Typography
-          sx={{ color: messageType === "success" ? "green" : "blue", mb: 2 }}
-        >
-          {successMessage}
-        </Typography>
-      )}
-
-      {error && (
-        <Typography sx={{ color: "red", mb: 2 }}>Error: {error}</Typography>
-      )}
+      <SuccessMessage message={successMessage} messageType={messageType} />
+      <ErrorMessage error={error} />
 
       {loading && (
         <Box sx={{ display: "flex", justifyContent: "center", my: 3 }}>
@@ -145,74 +140,19 @@ const Home = () => {
         </Button>
       </Box>
 
-      <Box>
-        <Typography variant="h6" mb={2}>
-          Juegos Disponibles:
-        </Typography>
-        {games.length === 0 ? (
-          <Typography>No hay juegos disponibles.</Typography>
-        ) : (
-          games.map((game) => (
-            <Box
-              key={game._id}
-              sx={{
-                p: 2,
-                mb: 2,
-                border: "1px solid #ccc",
-                borderRadius: "4px",
-              }}
-            >
-              <Typography variant="body1">
-                <strong>Nombre:</strong> {game.name}
-              </Typography>
-              <Typography variant="body2">
-                <strong>Jugadores:</strong> {game.players.length}
-              </Typography>
-              <Box sx={{ mt: 1, display: "flex", gap: 2 }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => handleJoinGame(game._id, userId)}
-                >
-                  Unirse
-                </Button>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={() => handleDeleteGame(game._id)}
-                >
-                  Eliminar
-                </Button>
-                <Button
-                  variant="contained"
-                  color="error"
-                  onClick={() => handleRemovePlayer(game._id, userId)}
-                >
-                  Remover Jugador
-                </Button>
-              </Box>
-            </Box>
-          ))
-        )}
-      </Box>
+      <GameList
+        games={games}
+        userId={userId}
+        onJoinGame={handleJoinGame}
+        onDeleteGame={handleDeleteGame}
+        onRemovePlayer={handleRemovePlayer}
+      />
 
       {currentGame && (
-        <Box
-          sx={{ mt: 4, p: 3, border: "1px solid #333", borderRadius: "8px" }}
-        >
-          <Typography variant="h5">Juego actual: {currentGame.name}</Typography>
-          <Typography variant="body1">
-            Jugadores: {currentGame.players.length}
-          </Typography>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={() => dispatch(setCurrentGame(null))}
-            sx={{ mt: 2 }}
-          >
-            Salir del Juego
-          </Button>
-        </Box>
+        <CurrentGame
+          currentGame={currentGame}
+          onLeaveGame={() => dispatch(setCurrentGame(null))}
+        />
       )}
     </Box>
   );

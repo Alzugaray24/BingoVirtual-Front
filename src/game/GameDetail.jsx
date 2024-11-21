@@ -1,49 +1,30 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  Button,
-  Box,
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  Snackbar,
-  Alert,
-  CircularProgress,
-} from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { Box, Typography, Grid, Button, CircularProgress } from "@mui/material";
+import { setError } from "../store/slices/requestStatusSlice";
+import { clearSuccessMessage } from "../store/slices/successMessageSlice";
 import useSocket from "../hooks/useSocket";
-import { setCurrentGame } from "../store/slices/gameSlice";
-import {
-  setSuccessMessage,
-  clearSuccessMessage,
-} from "../store/slices/successMessageSlice";
+import SuccessMessage from "../components/game/SuccessMessage";
+import ErrorMessage from "../components/game/ErrorMessage";
+import GameInProgress from "./GameInProgress";
 
 const GameDetail = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const currentGame = useSelector((state) => state.game.currentGame);
+  const { currentGame } = useSelector((state) => state.game);
+  const { loading, error } = useSelector((state) => state.requestStatus);
   const { successMessage, messageType } = useSelector(
     (state) => state.successMessage
   );
-  const loading = useSelector((state) => state.requestStatus.loading);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const { startGame } = useSocket({
-    onNewPlayer: (newPlayer) => {
-      dispatch(
-        setCurrentGame({
-          ...currentGame,
-          players: [...currentGame.players, newPlayer],
-        })
-      );
+    onGameStarted: () => {
+      setIsPlaying(true); // Cambiar el estado cuando el juego comienza
     },
-    onPlayerJoined: (userId) => {
-      dispatch(
-        setSuccessMessage({
-          message: `El jugador con ID ${userId} se unió a la partida.`,
-          messageType: "info",
-        })
-      );
+    onError: (err) => {
+      dispatch(setError(err.message || "Ocurrió un error inesperado."));
     },
   });
 
@@ -64,7 +45,8 @@ const GameDetail = () => {
   }, [successMessage, dispatch]);
 
   const handleStartGame = () => {
-    startGame(currentGame._id);
+    startGame(currentGame._id); // Inicia el juego
+    setIsPlaying(true); // Cambiar el estado inmediatamente
   };
 
   if (loading) {
@@ -84,98 +66,48 @@ const GameDetail = () => {
   }
 
   return (
-    <Box p={3}>
-      <Typography variant="h4" mb={3}>
-        Detalles del Juego
-      </Typography>
+    <>
+      {isPlaying ? (
+        <GameInProgress /> // Renderiza el componente de partida en curso
+      ) : (
+        <Box p={3}>
+          <Typography variant="h4" mb={3}>
+            Detalles del Juego
+          </Typography>
 
-      {successMessage && (
-        <Snackbar
-          open={true}
-          autoHideDuration={3000}
-          onClose={() => dispatch(clearSuccessMessage())}
-        >
-          <Alert
-            onClose={() => dispatch(clearSuccessMessage())}
-            severity={messageType || "info"}
-            sx={{ width: "100%" }}
-          >
-            {successMessage}
-          </Alert>
-        </Snackbar>
-      )}
+          {/* Mensajes de éxito y error */}
+          <SuccessMessage message={successMessage} messageType={messageType} />
+          <ErrorMessage error={error} />
 
-      <Typography variant="h6" mb={2}>
-        Jugadores en la partida: {currentGame.players.length}
-      </Typography>
+          <Typography variant="h6" mb={2}>
+            Jugadores en la partida: {currentGame.players.length}
+          </Typography>
 
-      <Grid container spacing={2}>
-        {currentGame.players.map((player, index) => (
-          <Grid
-            item
-            xs={12}
-            sm={6}
-            md={4}
-            key={player.userId._id || player.userId}
-          >
-            <Card>
-              <CardContent>
+          {/* Lista de jugadores */}
+          <Grid container spacing={2}>
+            {currentGame.players.map((player, index) => (
+              <Grid item xs={12} key={player.userId._id || player.userId}>
                 <Typography variant="body1">
-                  <strong>Jugador {index + 1}</strong>
+                  {index + 1}. ID del Jugador:{" "}
+                  {player.userId._id || player.userId}
                 </Typography>
-                <Typography variant="body2">
-                  <strong>ID:</strong> {player.userId._id || player.userId}
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Card:</strong>
-                </Typography>
-                <Box
-                  component="table"
-                  border={1}
-                  borderColor="gray"
-                  sx={{
-                    borderCollapse: "collapse",
-                    marginTop: "8px",
-                  }}
-                >
-                  <tbody>
-                    {player.card.map((row, rowIndex) => (
-                      <tr key={rowIndex}>
-                        {row.map((number, colIndex) => (
-                          <td
-                            key={colIndex}
-                            style={{
-                              border: "1px solid gray",
-                              padding: "4px",
-                              textAlign: "center",
-                              width: "30px",
-                              height: "30px",
-                            }}
-                          >
-                            {number}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </Box>
-              </CardContent>
-            </Card>
+              </Grid>
+            ))}
           </Grid>
-        ))}
-      </Grid>
 
-      <Box mt={3}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleStartGame}
-          disabled={currentGame.players.length < 3}
-        >
-          Iniciar Juego
-        </Button>
-      </Box>
-    </Box>
+          {/* Botón para iniciar el juego */}
+          <Box mt={3}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleStartGame}
+            >
+              Iniciar Juego
+            </Button>
+          </Box>
+        </Box>
+      )}
+    </>
   );
 };
 

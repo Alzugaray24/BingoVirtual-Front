@@ -1,5 +1,5 @@
-import React from "react";
 import { Button } from "@mui/material";
+import PropTypes from "prop-types";
 
 const CreateGameButton = ({ onCreate }) => {
   return (
@@ -13,6 +13,9 @@ const CreateGameButton = ({ onCreate }) => {
       Crear Juego
     </Button>
   );
+};
+CreateGameButton.propTypes = {
+  onCreate: PropTypes.func.isRequired,
 };
 
 export default CreateGameButton;
