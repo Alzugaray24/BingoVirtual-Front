@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Box, Typography, Grid, Button, CircularProgress } from "@mui/material";
@@ -8,6 +8,8 @@ import useSocket from "../hooks/useSocket";
 import SuccessMessage from "../components/game/SuccessMessage";
 import ErrorMessage from "../components/game/ErrorMessage";
 import GameInProgress from "./GameInProgress";
+import { setCurrentGameStatus } from "../store/slices/gameSlice";
+import { setSuccessMessage } from "../store/slices/successMessageSlice";
 
 const GameDetail = () => {
   const dispatch = useDispatch();
@@ -17,11 +19,16 @@ const GameDetail = () => {
   const { successMessage, messageType } = useSelector(
     (state) => state.successMessage
   );
-  const [isPlaying, setIsPlaying] = useState(false);
 
   const { startGame } = useSocket({
     onGameStarted: () => {
-      setIsPlaying(true); // Cambiar el estado cuando el juego comienza
+      dispatch(setCurrentGameStatus("En Curso"));
+      dispatch(
+        setSuccessMessage({
+          message: "La partida ha comenzado. ¡Buena suerte!",
+          messageType: "success",
+        })
+      );
     },
     onError: (err) => {
       dispatch(setError(err.message || "Ocurrió un error inesperado."));
@@ -46,7 +53,6 @@ const GameDetail = () => {
 
   const handleStartGame = () => {
     startGame(currentGame._id); // Inicia el juego
-    setIsPlaying(true); // Cambiar el estado inmediatamente
   };
 
   if (loading) {
@@ -67,8 +73,11 @@ const GameDetail = () => {
 
   return (
     <>
-      {isPlaying ? (
-        <GameInProgress /> // Renderiza el componente de partida en curso
+      {currentGame.gameStatus === "En Curso" ? (
+        <Box p={3}>
+          <SuccessMessage message={successMessage} messageType={messageType} />
+          <GameInProgress />
+        </Box>
       ) : (
         <Box p={3}>
           <Typography variant="h4" mb={3}>

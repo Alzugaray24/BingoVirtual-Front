@@ -16,11 +16,15 @@ const gameSlice = createSlice({
       state.games = [];
     },
     addGame: (state, action) => {
-      console.log("entre");
       state.games.push(action.payload);
     },
     setCurrentGame: (state, action) => {
       state.currentGame = action.payload;
+    },
+    setCurrentGameStatus: (state, action) => {
+      console.log("entre");
+
+      state.currentGame.gameStatus = action.payload;
     },
     deleteGame: (state, action) => {
       state.games = state.games.filter((game) => game._id !== action.payload);
@@ -28,7 +32,13 @@ const gameSlice = createSlice({
   },
 });
 
-export const { setGames, setCurrentGame, resetGames, addGame, deleteGame } =
-  gameSlice.actions;
+export const {
+  setGames,
+  setCurrentGame,
+  resetGames,
+  addGame,
+  deleteGame,
+  setCurrentGameStatus,
+} = gameSlice.actions;
 
 export default gameSlice.reducer;
