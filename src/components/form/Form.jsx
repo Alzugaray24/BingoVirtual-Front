@@ -1,4 +1,4 @@
-import React from "react";
+import PropTypes from "prop-types";
 import { Box, Grid, Typography, Alert, Link } from "@mui/material";
 import SubmitButton from "./SubmitButton";
 import InputField from "./InputField";
@@ -74,6 +74,30 @@ const Form = ({
       </form>
     </Box>
   );
+};
+
+Form.propTypes = {
+  title: PropTypes.string.isRequired,
+  fields: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string.isRequired,
+      type: PropTypes.string.isRequired,
+      value: PropTypes.string.isRequired,
+      onChange: PropTypes.func.isRequired,
+      autoComplete: PropTypes.string,
+      required: PropTypes.bool,
+    })
+  ).isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
+  successMessage: PropTypes.string,
+  error: PropTypes.string,
+  messageType: PropTypes.string,
+  link: PropTypes.shape({
+    message: PropTypes.string,
+    text: PropTypes.string,
+    onClick: PropTypes.func,
+  }),
 };
 
 export default Form;

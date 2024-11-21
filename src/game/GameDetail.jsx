@@ -1,18 +1,15 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   Button,
   Box,
   Typography,
-  List,
-  ListItem,
-  Divider,
-  Snackbar,
-  Alert,
+  Grid,
   Card,
   CardContent,
-  CardActions,
-  Grid,
+  Snackbar,
+  Alert,
+  CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import useSocket from "../hooks/useSocket";
@@ -29,6 +26,7 @@ const GameDetail = () => {
   const { successMessage, messageType } = useSelector(
     (state) => state.successMessage
   );
+  const loading = useSelector((state) => state.requestStatus.loading);
 
   const { startGame } = useSocket({
     onNewPlayer: (newPlayer) => {
@@ -56,18 +54,6 @@ const GameDetail = () => {
     }
   }, [currentGame, navigate]);
 
-  if (!currentGame) {
-    return (
-      <Box p={3}>
-        <Typography variant="h5">No hay un juego seleccionado.</Typography>
-      </Box>
-    );
-  }
-
-  const handleStartGame = () => {
-    startGame(currentGame._id);
-  };
-
   useEffect(() => {
     if (successMessage) {
       const timeout = setTimeout(() => {
@@ -76,6 +62,26 @@ const GameDetail = () => {
       return () => clearTimeout(timeout);
     }
   }, [successMessage, dispatch]);
+
+  const handleStartGame = () => {
+    startGame(currentGame._id);
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!currentGame) {
+    return (
+      <Box p={3}>
+        <Typography variant="h5">No hay un juego seleccionado.</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box p={3}>

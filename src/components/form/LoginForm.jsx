@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Form from "./Form";
@@ -53,6 +54,12 @@ const LoginForm = ({ onLogin, loading, error }) => {
       link={link}
     />
   );
+};
+
+LoginForm.propTypes = {
+  onLogin: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
+  error: PropTypes.string,
 };
 
 export default LoginForm;

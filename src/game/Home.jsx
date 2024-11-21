@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -7,11 +7,7 @@ import {
   deleteGame,
   setCurrentGame,
 } from "../store/slices/gameSlice";
-import {
-  setLoading,
-  setError,
-  clearError,
-} from "../store/slices/requestStatusSlice";
+import { setError } from "../store/slices/requestStatusSlice";
 import {
   setSuccessMessage,
   clearSuccessMessage,
@@ -34,7 +30,6 @@ const Home = () => {
     createGame,
     deleteGame: deleteGameSocket,
     joinGame,
-    notifyDisconnect,
     removePlayer,
   } = useSocket({
     onGamesList: (data) => {
@@ -105,10 +100,6 @@ const Home = () => {
       return;
     }
     joinGame(gameId, userId);
-  };
-
-  const handleNotifyDisconnect = () => {
-    if (userId) notifyDisconnect(userId);
   };
 
   const handleRemovePlayer = (gameId, userId) => {
@@ -211,7 +202,7 @@ const Home = () => {
         >
           <Typography variant="h5">Juego actual: {currentGame.name}</Typography>
           <Typography variant="body1">
-            <strong>Jugadores:</strong> {currentGame.players.length}
+            Jugadores: {currentGame.players.length}
           </Typography>
           <Button
             variant="contained"

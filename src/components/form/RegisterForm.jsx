@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Form from "./Form";
+import PropTypes from "prop-types";
 
 const RegisterForm = ({ onRegister, loading, error }) => {
   const [email, setEmail] = useState("");
@@ -61,6 +62,11 @@ const RegisterForm = ({ onRegister, loading, error }) => {
       link={link}
     />
   );
+};
+RegisterForm.propTypes = {
+  onRegister: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
+  error: PropTypes.string,
 };
 
 export default RegisterForm;
