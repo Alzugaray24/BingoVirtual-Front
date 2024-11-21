@@ -9,7 +9,12 @@ import {
   Divider,
   Snackbar,
   Alert,
+  Card,
+  CardContent,
+  CardActions,
+  Grid,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import useSocket from "../hooks/useSocket";
 import { setCurrentGame } from "../store/slices/gameSlice";
 import {
@@ -19,6 +24,7 @@ import {
 
 const GameDetail = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const currentGame = useSelector((state) => state.game.currentGame);
   const { successMessage, messageType } = useSelector(
     (state) => state.successMessage
@@ -46,8 +52,9 @@ const GameDetail = () => {
   useEffect(() => {
     if (!currentGame) {
       console.error("No hay un juego seleccionado.");
+      navigate("/");
     }
-  }, [currentGame]);
+  }, [currentGame, navigate]);
 
   if (!currentGame) {
     return (
@@ -96,11 +103,17 @@ const GameDetail = () => {
         Jugadores en la partida: {currentGame.players.length}
       </Typography>
 
-      <List>
+      <Grid container spacing={2}>
         {currentGame.players.map((player, index) => (
-          <React.Fragment key={player.userId._id || player.userId}>
-            <ListItem>
-              <Box>
+          <Grid
+            item
+            xs={12}
+            sm={6}
+            md={4}
+            key={player.userId._id || player.userId}
+          >
+            <Card>
+              <CardContent>
                 <Typography variant="body1">
                   <strong>Jugador {index + 1}</strong>
                 </Typography>
@@ -140,12 +153,11 @@ const GameDetail = () => {
                     ))}
                   </tbody>
                 </Box>
-              </Box>
-            </ListItem>
-            <Divider />
-          </React.Fragment>
+              </CardContent>
+            </Card>
+          </Grid>
         ))}
-      </List>
+      </Grid>
 
       <Box mt={3}>
         <Button
