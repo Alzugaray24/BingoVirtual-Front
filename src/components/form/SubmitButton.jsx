@@ -17,6 +17,7 @@ const SubmitButton = ({ loading, text, onClick, ...props }) => {
     >
       {loading ? "Cargando..." : text}
     </Button>
+
   );
 };
 

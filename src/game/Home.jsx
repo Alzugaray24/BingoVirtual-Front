@@ -131,19 +131,19 @@ const Home = () => {
       </Typography>
 
       {successMessage && (
-        <Typography color={messageType === "success" ? "green" : "blue"} mb={2}>
+        <Typography
+          sx={{ color: messageType === "success" ? "green" : "blue", mb: 2 }}
+        >
           {successMessage}
         </Typography>
       )}
 
       {error && (
-        <Typography color="red" mb={2}>
-          Error: {error}
-        </Typography>
+        <Typography sx={{ color: "red", mb: 2 }}>Error: {error}</Typography>
       )}
 
       {loading && (
-        <Box display="flex" justifyContent="center" my={3}>
+        <Box sx={{ display: "flex", justifyContent: "center", my: 3 }}>
           <CircularProgress />
         </Box>
       )}
@@ -164,10 +164,12 @@ const Home = () => {
           games.map((game) => (
             <Box
               key={game._id}
-              p={2}
-              mb={2}
-              border="1px solid #ccc"
-              borderRadius="4px"
+              sx={{
+                p: 2,
+                mb: 2,
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+              }}
             >
               <Typography variant="body1">
                 <strong>Nombre:</strong> {game.name}
@@ -175,7 +177,7 @@ const Home = () => {
               <Typography variant="body2">
                 <strong>Jugadores:</strong> {game.players.length}
               </Typography>
-              <Box mt={1} display="flex" gap={2}>
+              <Box sx={{ mt: 1, display: "flex", gap: 2 }}>
                 <Button
                   variant="contained"
                   color="primary"
@@ -204,7 +206,9 @@ const Home = () => {
       </Box>
 
       {currentGame && (
-        <Box mt={4} p={3} border="1px solid #333" borderRadius="8px">
+        <Box
+          sx={{ mt: 4, p: 3, border: "1px solid #333", borderRadius: "8px" }}
+        >
           <Typography variant="h5">Juego actual: {currentGame.name}</Typography>
           <Typography variant="body1">
             <strong>Jugadores:</strong> {currentGame.players.length}
