@@ -1,11 +1,16 @@
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Box, Grid, Typography, Snackbar, Alert } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import BingoCard from "../components/game/BingoCard";
 import DrawnBalls from "../components/game/DrawnBalls";
 import useSocket from "../hooks/useSocket";
 import MarkedBalls from "../components/game/MarkedBalls";
-import { setDrawnNumber, setMarkedNumber } from "../store/slices/gameSlice";
+import {
+  setDrawnNumber,
+  setMarkedNumber,
+  setGameWithoutPlayer,
+} from "../store/slices/gameSlice";
 import {
   setSuccessMessage,
   clearSuccessMessage,
@@ -20,15 +25,16 @@ const GameInProgress = () => {
   const { successMessage, messageType } = useSelector(
     (state) => state.successMessage
   );
+
+  console.log(currentGame.players.length);
+
   const error = useSelector((state) => state.requestStatus.error);
 
   const dispatch = useDispatch();
-
-  console.log(currentGame);
-
   const player = currentGame.players.find((player) => player.userId === userId);
+  const navigate = useNavigate();
 
-  const { drawBall, markBall } = useSocket({
+  const { drawBall, markBall, checkWinCondition } = useSocket({
     onBallDrawn: (newBall) => {
       dispatch(setDrawnNumber(newBall));
     },
@@ -42,6 +48,30 @@ const GameInProgress = () => {
           messageType: "success",
         })
       );
+    },
+    onGameWon: (winner) => {
+      console.log("onGameWon", winner);
+      dispatch(
+        setSuccessMessage({
+          message: `¡Bingo! El ganador es ${winner.name}.`,
+          messageType: "success",
+        })
+      );
+    },
+    onPlayerRemoved: (obj) => {
+      dispatch(setGameWithoutPlayer(obj.playerId));
+
+      dispatch(
+        setSuccessMessage({
+          message: "Fuiste descalificado por hacer trampa.",
+          messageType: "error",
+        })
+      );
+
+      // Opcional: redirigir al usuario a la pantalla de inicio después de un tiempo
+      setTimeout(() => {
+        navigate("/home"); // Asegúrate de usar `useNavigate` de React Router
+      }, 3000); // Espera 3 segundos para que el mensaje sea visible
     },
     onError: (err) => {
       dispatch(setError(err.message || "Ocurrió un error inesperado."));
@@ -59,13 +89,17 @@ const GameInProgress = () => {
     if (currentGame.drawnBalls.length < 75) {
       const interval = setInterval(() => {
         drawBall(currentGame._id); // Llama a la función para extraer una nueva bola
-      }, 3000); // Ajusta el intervalo según sea necesario
+      }, 10000); // Ajusta el intervalo según sea necesario
       return () => clearInterval(interval); // Limpia el intervalo al desmontar
     }
   }, [drawBall, currentGame._id]);
 
   const handleCloseSnackbar = () => {
     dispatch(clearSuccessMessage()); // Limpia el mensaje de éxito
+  };
+
+  const handleGameWon = async () => {
+    await checkWinCondition(currentGame._id, userId);
   };
 
   // Validar messageType antes de usarlo en Alert
@@ -76,12 +110,24 @@ const GameInProgress = () => {
 
   return (
     <Box p={3}>
-      <Box mb={3} flexDirection="row" justifyContent="space-around">
+      <Box
+        mb={3}
+        flexDirection="row"
+        display="flex"
+        justifyContent="space-around"
+      >
         <GameTitle title="Partida en Curso" />
-        <BingoButton />
+        <BingoButton onClick={handleGameWon} />
       </Box>
       <Grid container spacing={3}>
-        <Grid justifyContent="space-around" item xs={12} md={6}>
+        <Grid
+          justifyContent="space-around"
+          display="flex"
+          flexDirection="column"
+          item
+          xs={12}
+          md={6}
+        >
           {/* Bolas Extraídas */}
           <DrawnBalls drawnBalls={currentGame.drawnBalls} />
 

@@ -32,6 +32,9 @@ const GameDetail = () => {
     },
     onError: (err) => {
       dispatch(setError(err.message || "Ocurrió un error inesperado."));
+      setTimeout(() => {
+        dispatch(clearSuccessMessage());
+      }, 3000);
     },
   });
 

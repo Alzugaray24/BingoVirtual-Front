@@ -5,7 +5,7 @@ const BingoButton = ({ onClick }) => {
   return (
     <Tooltip title="¡Haz clic para cantar Bingo!" arrow>
       <Button
-        onClick={onClick}
+        onClick={() => onClick()}
         variant="contained"
         sx={{
           fontSize: "24px",

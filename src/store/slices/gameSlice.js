@@ -44,6 +44,13 @@ const gameSlice = createSlice({
 
       player.markedBalls.push(action.payload.ballNumber);
     },
+    setGameWithoutPlayer: (state, action) => {
+      const playerId = action.payload;
+      state.currentGame.players = state.currentGame.players.filter(
+        (player) => player.userId !== playerId
+      );
+      console.log("Player Removed");
+    },
     deleteGame: (state, action) => {
       state.games = state.games.filter((game) => game._id !== action.payload);
     },
@@ -59,6 +66,7 @@ export const {
   setCurrentGameStatus,
   setDrawnNumber,
   setMarkedNumber,
+  setGameWithoutPlayer,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;

@@ -18,6 +18,7 @@ import GameList from "../components/game/GameList";
 import CurrentGame from "../components/game/CurrentGame";
 import SuccessMessage from "../components/game/SuccessMessage";
 import ErrorMessage from "../components/game/ErrorMessage";
+import clearError from "../store/slices/requestStatusSlice";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -79,6 +80,9 @@ const Home = () => {
     },
     onError: (err) => {
       dispatch(setError(err.message || "Ocurrió un error inesperado."));
+      setTimeout(() => {
+        dispatch(clearError());
+      }, 3000);
     },
   });
 
