@@ -16,32 +16,32 @@ import {
   clearSuccessMessage,
 } from "../store/slices/successMessageSlice";
 import { setError, clearError } from "../store/slices/requestStatusSlice";
+import { openModal, closeModal } from "../store/slices/modalSlice"; // Importar modalSlice
 import GameTitle from "../components/game/GameTitle";
 import BingoButton from "../components/game/BingoButton";
+import CustomModal from "../components/game/CustomModal"; // Importar CustomModal
 
 const GameInProgress = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const userId = useSelector((state) => state.auth.userId);
   const currentGame = useSelector((state) => state.game.currentGame);
   const { successMessage, messageType } = useSelector(
     (state) => state.successMessage
   );
-
-  console.log(currentGame.players.length);
+  const { isOpen, type, content } = useSelector((state) => state.modal);
 
   const error = useSelector((state) => state.requestStatus.error);
 
-  const dispatch = useDispatch();
   const player = currentGame.players.find((player) => player.userId === userId);
-  const navigate = useNavigate();
 
   const { drawBall, markBall, checkWinCondition } = useSocket({
     onBallDrawn: (newBall) => {
       dispatch(setDrawnNumber(newBall));
     },
     onBallMarked: (ballNumber) => {
-      console.log("onBallMarked", ballNumber);
-
-      dispatch(setMarkedNumber({ ballNumber, userId })); // Marca la bola en el tarjetón
+      dispatch(setMarkedNumber({ ballNumber, userId }));
       dispatch(
         setSuccessMessage({
           message: `¡Bola ${ballNumber} marcada!`,
@@ -50,7 +50,6 @@ const GameInProgress = () => {
       );
     },
     onGameWon: (winner) => {
-      console.log("onGameWon", winner);
       dispatch(
         setSuccessMessage({
           message: `¡Bingo! El ganador es ${winner.name}.`,
@@ -60,18 +59,15 @@ const GameInProgress = () => {
     },
     onPlayerRemoved: (obj) => {
       dispatch(setGameWithoutPlayer(obj.playerId));
-
       dispatch(
         setSuccessMessage({
           message: "Fuiste descalificado por hacer trampa.",
           messageType: "error",
         })
       );
-
-      // Opcional: redirigir al usuario a la pantalla de inicio después de un tiempo
       setTimeout(() => {
-        navigate("/home"); // Asegúrate de usar `useNavigate` de React Router
-      }, 3000); // Espera 3 segundos para que el mensaje sea visible
+        navigate("/home");
+      }, 3000);
     },
     onError: (err) => {
       dispatch(setError(err.message || "Ocurrió un error inesperado."));
@@ -82,27 +78,41 @@ const GameInProgress = () => {
   });
 
   const handleMarkBall = async (ballNumber) => {
-    await markBall(currentGame._id, userId, ballNumber); // Marca la bola
+    await markBall(currentGame._id, userId, ballNumber);
+  };
+
+  const handleGameWon = async () => {
+    await checkWinCondition(currentGame._id, userId);
+    dispatch(closeModal());
+  };
+
+  const handleOpenModal = () => {
+    dispatch(
+      openModal({
+        type: "confirm",
+        content: {
+          message:
+            "¿Estás seguro de que quieres declarar Bingo? Si no es correcto, serás descalificado.",
+          onConfirm: handleGameWon,
+          onCancel: () => dispatch(closeModal()),
+        },
+      })
+    );
   };
 
   useEffect(() => {
     if (currentGame.drawnBalls.length < 75) {
       const interval = setInterval(() => {
-        drawBall(currentGame._id); // Llama a la función para extraer una nueva bola
-      }, 10000); // Ajusta el intervalo según sea necesario
-      return () => clearInterval(interval); // Limpia el intervalo al desmontar
+        drawBall(currentGame._id);
+      }, 10000);
+      return () => clearInterval(interval);
     }
   }, [drawBall, currentGame._id]);
 
   const handleCloseSnackbar = () => {
-    dispatch(clearSuccessMessage()); // Limpia el mensaje de éxito
+    dispatch(clearSuccessMessage());
   };
 
-  const handleGameWon = async () => {
-    await checkWinCondition(currentGame._id, userId);
-  };
-
-  // Validar messageType antes de usarlo en Alert
   const validMessageTypes = ["success", "info", "warning", "error"];
   const severity = validMessageTypes.includes(messageType)
     ? messageType
@@ -117,7 +127,7 @@ const GameInProgress = () => {
         justifyContent="space-around"
       >
         <GameTitle title="Partida en Curso" />
-        <BingoButton onClick={handleGameWon} />
+        <BingoButton onClick={handleOpenModal} />
       </Box>
       <Grid container spacing={3}>
         <Grid
@@ -128,16 +138,12 @@ const GameInProgress = () => {
           xs={12}
           md={6}
         >
-          {/* Bolas Extraídas */}
           <DrawnBalls drawnBalls={currentGame.drawnBalls} />
-
-          {/* Bolas Marcadas */}
           {player && player.markedBalls.length > 0 && (
             <MarkedBalls markedBalls={player.markedBalls} />
           )}
         </Grid>
         <Grid item xs={12} md={6}>
-          {/* Tarjeta de Bingo */}
           {player ? (
             <>
               <BingoCard
@@ -167,6 +173,13 @@ const GameInProgress = () => {
           {successMessage}
         </Alert>
       </Snackbar>
+      <CustomModal
+        isOpen={isOpen}
+        type={type}
+        message={content?.message}
+        onConfirm={content?.onConfirm}
+        onCancel={content?.onCancel}
+      />
     </Box>
   );
 };

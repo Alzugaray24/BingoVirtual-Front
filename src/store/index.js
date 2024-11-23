@@ -6,6 +6,7 @@ import authReducer from "./slices/authSlice";
 import requestStatusReducer from "./slices/requestStatusSlice";
 import successMessageReducer from "./slices/successMessageSlice";
 import socketReducer from "./slices/socketSlice";
+import modalReducer from "./slices/modalSlice"; // Importar modalReducer
 
 const gamePersistConfig = {
   key: "game",
@@ -29,6 +30,7 @@ const store = configureStore({
     socket: persistReducer(socketPersistConfig, socketReducer),
     requestStatus: requestStatusReducer,
     successMessage: successMessageReducer,
+    modal: modalReducer, // Agregar el reducer de modal
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

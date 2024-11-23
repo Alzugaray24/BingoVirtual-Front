@@ -1,24 +1,31 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+
 import {
   setGames,
   addGame,
   deleteGame,
   setCurrentGame,
 } from "../store/slices/gameSlice";
-import { setError } from "../store/slices/requestStatusSlice";
 import {
   setSuccessMessage,
   clearSuccessMessage,
 } from "../store/slices/successMessageSlice";
+import { setError, clearError } from "../store/slices/requestStatusSlice";
+import { openModal, closeModal } from "../store/slices/modalSlice";
+
+import { CircularProgress, Box } from "@mui/material";
+
 import useSocket from "../hooks/useSocket";
-import { CircularProgress, Box, Typography, Button } from "@mui/material";
+
 import GameList from "../components/game/GameList";
 import CurrentGame from "../components/game/CurrentGame";
 import SuccessMessage from "../components/game/SuccessMessage";
 import ErrorMessage from "../components/game/ErrorMessage";
-import clearError from "../store/slices/requestStatusSlice";
+import CustomButton from "../components/game/CustomButton";
+import GameTitle from "../components/game/GameTitle";
+import CustomModal from "../components/game/CustomModal"; // Importa el modal personalizado
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -29,6 +36,11 @@ const Home = () => {
     (state) => state.successMessage
   );
   const userId = useSelector((state) => state.auth.userId);
+  const { isOpen, content, type } = useSelector((state) => state.modal);
+
+  const showMessage = (message, type) => {
+    dispatch(setSuccessMessage({ message, messageType: type }));
+  };
 
   const {
     viewGames,
@@ -37,52 +49,28 @@ const Home = () => {
     joinGame,
     removePlayer,
   } = useSocket({
-    onGamesList: (data) => {
-      dispatch(setGames(data));
-    },
+    onGamesList: (data) => dispatch(setGames(data)),
     onGameCreated: (game) => {
       dispatch(addGame(game));
-      dispatch(
-        setSuccessMessage({
-          message: "Un nuevo juego ha sido creado.",
-          messageType: "success",
-        })
-      );
+      showMessage("Un nuevo juego ha sido creado.", "success");
     },
     onGameDeleted: (gameId) => {
       dispatch(deleteGame(gameId));
-      dispatch(
-        setSuccessMessage({
-          message: "El juego fue eliminado exitosamente.",
-          messageType: "info",
-        })
-      );
+      showMessage("El juego fue eliminado exitosamente.", "info");
     },
     onGameJoined: (game) => {
       dispatch(setCurrentGame(game));
       navigate(`/game-detail/${game._id}`);
     },
     onPlayerDisconnected: (userId) => {
-      dispatch(
-        setSuccessMessage({
-          message: `El jugador con ID ${userId} se desconectó.`,
-          messageType: "warning",
-        })
-      );
+      showMessage(`El jugador con ID ${userId} se desconectó.`, "warning");
     },
     onPlayerRemoved: (player) => {
-      dispatch(
-        setSuccessMessage({
-          message: `El jugador con ID ${player.userId} fue removido.`,
-          messageType: "info",
-        })
-      );
+      showMessage(`El jugador con ID ${player.userId} fue removido.`, "info");
     },
     onError: (err) => {
       dispatch(setError(err.message || "Ocurrió un error inesperado."));
-      setTimeout(() => {
-        dispatch(clearError());
-      }, 3000);
+      setTimeout(() => dispatch(clearError()), 3000);
     },
   });
 
@@ -90,74 +78,117 @@ const Home = () => {
     viewGames();
   }, [viewGames]);
 
-  const handleCreateGame = () => {
-    createGame();
-  };
+  const handleCreateGame = useCallback(() => createGame(), [createGame]);
 
-  const handleDeleteGame = (gameId) => {
-    deleteGameSocket(gameId);
-  };
-
-  const handleJoinGame = (gameId, userId) => {
-    if (!userId) {
+  const handleDeleteGame = useCallback(
+    (gameId) => {
       dispatch(
-        setError(
-          "El ID del usuario no está definido. No se puede unir al juego."
-        )
+        openModal({
+          type: "confirm",
+          content: {
+            message: "¿Estás seguro de que deseas eliminar este juego?",
+            onConfirm: () => {
+              deleteGameSocket(gameId);
+              dispatch(closeModal());
+            },
+            onCancel: () => dispatch(closeModal()),
+          },
+        })
       );
-      return;
-    }
-    joinGame(gameId, userId);
-  };
+    },
+    [dispatch, deleteGameSocket]
+  );
 
-  const handleRemovePlayer = (gameId, userId) => {
-    removePlayer(gameId, userId);
-  };
+  const handleJoinGame = useCallback(
+    (gameId) => {
+      if (!userId) {
+        dispatch(
+          setError(
+            "El ID del usuario no está definido. No se puede unir al juego."
+          )
+        );
+        return;
+      }
+      joinGame(gameId, userId);
+    },
+    [dispatch, joinGame, userId]
+  );
+
+  const handleRemovePlayer = useCallback(
+    (gameId, userId) => removePlayer(gameId, userId),
+    [removePlayer]
+  );
 
   useEffect(() => {
     if (successMessage) {
       const timeout = setTimeout(() => {
         dispatch(clearSuccessMessage());
-      }, 3000);
+      }, 1000);
       return () => clearTimeout(timeout);
     }
   }, [successMessage, dispatch]);
 
   return (
-    <Box p={3}>
-      <Typography variant="h4" mb={3}>
-        Bingo Virtual - Inicio
-      </Typography>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "16px",
+      }}
+    >
+      <GameTitle title="Bingo Virtual - Inicio" />
 
-      <SuccessMessage message={successMessage} messageType={messageType} />
-      <ErrorMessage error={error} />
+      <Box sx={{ width: "100%", maxWidth: "600px", margin: "16px 0" }}>
+        <SuccessMessage message={successMessage} messageType={messageType} />
+        <ErrorMessage error={error} />
+      </Box>
 
-      {loading && (
+      {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", my: 3 }}>
           <CircularProgress />
         </Box>
+      ) : (
+        <>
+          <Box mb={4}>
+            <CustomButton
+              text="Crear Juego"
+              color="primary"
+              onClick={handleCreateGame}
+              size="large"
+              borderRadius="8px"
+              sx={{
+                backgroundColor: "#007bff",
+                "&:hover": { backgroundColor: "#0056b3" },
+              }}
+            />
+          </Box>
+
+          <GameList
+            games={games}
+            userId={userId}
+            onJoinGame={handleJoinGame}
+            onDeleteGame={handleDeleteGame}
+            onRemovePlayer={handleRemovePlayer}
+          />
+
+          {currentGame && (
+            <CurrentGame
+              currentGame={currentGame}
+              onLeaveGame={() => dispatch(setCurrentGame(null))}
+            />
+          )}
+        </>
       )}
 
-      <Box mb={4}>
-        <Button variant="contained" color="primary" onClick={handleCreateGame}>
-          Crear Juego
-        </Button>
-      </Box>
-
-      <GameList
-        games={games}
-        userId={userId}
-        onJoinGame={handleJoinGame}
-        onDeleteGame={handleDeleteGame}
-        onRemovePlayer={handleRemovePlayer}
+      <CustomModal
+        isOpen={isOpen}
+        type={type}
+        message={content?.message}
+        onConfirm={content?.onConfirm}
+        onCancel={content?.onCancel}
       />
-
-      {currentGame && (
-        <CurrentGame
-          currentGame={currentGame}
-          onLeaveGame={() => dispatch(setCurrentGame(null))}
-        />
-      )}
     </Box>
   );
 };

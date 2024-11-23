@@ -1,15 +1,17 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Grid, Button, CircularProgress } from "@mui/material";
-import { setError } from "../store/slices/requestStatusSlice";
-import { clearSuccessMessage } from "../store/slices/successMessageSlice";
+import { Box, CircularProgress, Typography, Card } from "@mui/material";
+import { setError, clearError } from "../store/slices/requestStatusSlice";
+import { setCurrentGameStatus } from "../store/slices/gameSlice";
+import { setSuccessMessage } from "../store/slices/successMessageSlice";
 import useSocket from "../hooks/useSocket";
 import SuccessMessage from "../components/game/SuccessMessage";
 import ErrorMessage from "../components/game/ErrorMessage";
+import GameDetails from "../components/game/GameDetails";
+import CustomButton from "../components/game/CustomButton";
 import GameInProgress from "./GameInProgress";
-import { setCurrentGameStatus } from "../store/slices/gameSlice";
-import { setSuccessMessage } from "../store/slices/successMessageSlice";
+import GameTitle from "../components/game/GameTitle";
 
 const GameDetail = () => {
   const dispatch = useDispatch();
@@ -33,14 +35,13 @@ const GameDetail = () => {
     onError: (err) => {
       dispatch(setError(err.message || "Ocurrió un error inesperado."));
       setTimeout(() => {
-        dispatch(clearSuccessMessage());
+        dispatch(clearError());
       }, 3000);
     },
   });
 
   useEffect(() => {
     if (!currentGame) {
-      console.error("No hay un juego seleccionado.");
       navigate("/");
     }
   }, [currentGame, navigate]);
@@ -48,19 +49,26 @@ const GameDetail = () => {
   useEffect(() => {
     if (successMessage) {
       const timeout = setTimeout(() => {
-        dispatch(clearSuccessMessage());
+        dispatch(clearError());
       }, 3000);
       return () => clearTimeout(timeout);
     }
   }, [successMessage, dispatch]);
 
   const handleStartGame = () => {
-    startGame(currentGame._id); // Inicia el juego
+    startGame(currentGame._id);
   };
 
   if (loading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -68,58 +76,77 @@ const GameDetail = () => {
 
   if (!currentGame) {
     return (
-      <Box p={3}>
-        <Typography variant="h5">No hay un juego seleccionado.</Typography>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          textAlign: "center",
+        }}
+      >
+        <Typography variant="h4" color="textSecondary">
+          No hay un juego seleccionado.
+        </Typography>
       </Box>
     );
   }
 
   return (
-    <>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "24px",
+        backgroundColor: "#f5f5f5",
+        minHeight: "100vh",
+      }}
+    >
+      {successMessage && (
+        <SuccessMessage message={successMessage} messageType={messageType} />
+      )}
+      {error && <ErrorMessage error={error} />}
+
       {currentGame.gameStatus === "En Curso" ? (
-        <Box p={3}>
-          <SuccessMessage message={successMessage} messageType={messageType} />
-          <GameInProgress />
-        </Box>
+        <GameInProgress />
       ) : (
-        <Box p={3}>
-          <Typography variant="h4" mb={3}>
-            Detalles del Juego
-          </Typography>
-
-          {/* Mensajes de éxito y error */}
-          <SuccessMessage message={successMessage} messageType={messageType} />
-          <ErrorMessage error={error} />
-
-          <Typography variant="h6" mb={2}>
-            Jugadores en la partida: {currentGame.players.length}
-          </Typography>
-
-          {/* Lista de jugadores */}
-          <Grid container spacing={2}>
-            {currentGame.players.map((player, index) => (
-              <Grid item xs={12} key={player.userId._id || player.userId}>
-                <Typography variant="body1">
-                  {index + 1}. ID del Jugador:{" "}
-                  {player.userId._id || player.userId}
-                </Typography>
-              </Grid>
-            ))}
-          </Grid>
-
-          {/* Botón para iniciar el juego */}
-          <Box mt={3}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleStartGame}
-            >
-              Iniciar Juego
-            </Button>
+        <Box>
+          <Box mb={3}>
+            <GameTitle title="Detalles del Juego" />
           </Box>
+          <Box>
+            <Card
+              sx={{
+                width: "100%",
+                maxWidth: "800px",
+                padding: "24px",
+                borderRadius: "12px",
+                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+                backgroundColor: "#fff",
+              }}
+            >
+              <GameDetails game={currentGame} />
+              <Box mt={4} textAlign="center">
+                <CustomButton
+                  text="Iniciar Juego"
+                  color="primary"
+                  size="large"
+                  onClick={handleStartGame}
+                  sx={{
+                    backgroundColor: "#007bff",
+                    "&:hover": { backgroundColor: "#0056b3" },
+                    borderRadius: "8px",
+                  }}
+                />
+              </Box>
+            </Card>
+          </Box>{" "}
         </Box>
       )}
-    </>
+    </Box>
   );
 };
 
