@@ -34,6 +34,7 @@ const useSocket = ({
       playerJoined: onPlayerJoined,
       playerDisconnected: onPlayerDisconnected,
       playerRemoved: onPlayerRemoved,
+      error: onError,
     };
 
     Object.entries(events).forEach(([event, handler]) => {

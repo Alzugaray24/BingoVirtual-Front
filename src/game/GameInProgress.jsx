@@ -11,6 +11,7 @@ import {
 } from "../store/slices/successMessageSlice";
 import { setMarkedNumber } from "../store/slices/gameSlice";
 import { setError } from "../store/slices/requestStatusSlice";
+import { clearError } from "../store/slices/requestStatusSlice";
 
 const GameInProgress = () => {
   const userId = useSelector((state) => state.auth.userId);
@@ -18,6 +19,7 @@ const GameInProgress = () => {
   const { successMessage, messageType } = useSelector(
     (state) => state.successMessage
   );
+  const error = useSelector((state) => state.requestStatus.error);
 
   const dispatch = useDispatch();
 
@@ -32,6 +34,8 @@ const GameInProgress = () => {
       }
     },
     onBallMarked: (ballNumber) => {
+      console.log("onBallMarked", ballNumber);
+
       dispatch(setMarkedNumber({ ballNumber, userId })); // Marca la bola en el tarjetón
       dispatch(
         setSuccessMessage({
@@ -42,6 +46,9 @@ const GameInProgress = () => {
     },
     onError: (err) => {
       dispatch(setError(err.message || "Ocurrió un error inesperado."));
+      setTimeout(() => {
+        dispatch(clearError());
+      }, 3000);
     },
   });
 
@@ -50,12 +57,13 @@ const GameInProgress = () => {
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      drawBall(currentGame._id); // Llama a la función para extraer una nueva bola
-    }, 100000);
-
-    return () => clearInterval(interval); // Limpia el intervalo al desmontar
-  }, [drawBall, currentGame._id]);
+    if (currentGame.drawnBalls.length < 75) {
+      const interval = setInterval(() => {
+        drawBall(currentGame._id); // Llama a la función para extraer una nueva bola
+      }, 100); // Ajusta el intervalo según sea necesario
+      return () => clearInterval(interval); // Limpia el intervalo al desmontar
+    }
+  }, [drawBall, currentGame._id, currentGame.drawnBalls.length]);
 
   const handleCloseSnackbar = () => {
     dispatch(clearSuccessMessage()); // Limpia el mensaje de éxito
@@ -83,14 +91,20 @@ const GameInProgress = () => {
       )}
 
       {/* Tarjeta de Bingo */}
+
       {player ? (
-        <BingoCard
-          card={player.card}
-          markedNumbers={player.markedNumbers}
-          gameId={currentGame._id}
-          userId={userId}
-          onMarkBall={handleMarkBall}
-        />
+        <>
+          <BingoCard
+            card={player.card}
+            markedBalls={player.markedBalls.flat()}
+            onMarkBall={handleMarkBall}
+          />
+          {error && (
+            <Typography variant="h6" color="error" align="center">
+              {error}
+            </Typography>
+          )}
+        </>
       ) : (
         <Typography variant="h6" color="error" align="center">
           No tienes un tarjetón asignado. Espera a que comience la partida.

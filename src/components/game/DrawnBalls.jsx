@@ -5,7 +5,11 @@ const DrawnBalls = ({ drawnBalls }) => {
   return (
     <Typography variant="h6" mb={2}>
       Bolas Extraídas:{" "}
-      {drawnBalls.length > 0
+      {drawnBalls.length >= 75
+        ? `El proceso ha terminado, las bolas sacadas fueron: ${drawnBalls
+            .map((ball) => ball.newBall) // Extrae el número de cada bola
+            .join(", ")}` // Une los números con comas
+        : drawnBalls.length > 0
         ? drawnBalls
             .map((ball) => ball.newBall) // Extrae el número de cada bola
             .join(", ") // Une los números con comas
@@ -13,6 +17,7 @@ const DrawnBalls = ({ drawnBalls }) => {
     </Typography>
   );
 };
+
 DrawnBalls.propTypes = {
   drawnBalls: PropTypes.arrayOf(
     PropTypes.shape({

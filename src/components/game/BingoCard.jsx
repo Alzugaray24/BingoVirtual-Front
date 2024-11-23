@@ -1,15 +1,8 @@
 import { Card, CardContent, Typography, Grid } from "@mui/material";
 import PropTypes from "prop-types";
 import BingoCell from "./BingoCell";
-import useSocket from "../../hooks/useSocket";
 
-const BingoCard = ({ card, markedNumbers, gameId, userId }) => {
-  const { markBall } = useSocket({});
-
-  const handleMarkBall = (number) => {
-    markBall(gameId, userId, number);
-  };
-
+const BingoCard = ({ card, markedBalls, onMarkBall }) => {
   return (
     <Card sx={{ maxWidth: 400, margin: "0 auto" }}>
       <CardContent>
@@ -23,8 +16,8 @@ const BingoCard = ({ card, markedNumbers, gameId, userId }) => {
                 <Grid item xs={2.4} key={colIndex}>
                   <BingoCell
                     number={number}
-                    isMarked={markedNumbers.includes(number)}
-                    onClick={() => handleMarkBall(number)}
+                    isMarked={markedBalls.includes(number)}
+                    onClick={() => onMarkBall(number)}
                   />
                 </Grid>
               ))}
@@ -37,9 +30,8 @@ const BingoCard = ({ card, markedNumbers, gameId, userId }) => {
 };
 BingoCard.propTypes = {
   card: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired,
-  markedNumbers: PropTypes.arrayOf(PropTypes.number).isRequired,
-  gameId: PropTypes.string.isRequired,
-  userId: PropTypes.string.isRequired,
+  markedBalls: PropTypes.arrayOf(PropTypes.number).isRequired,
+  onMarkBall: PropTypes.func.isRequired,
 };
 
 export default BingoCard;
