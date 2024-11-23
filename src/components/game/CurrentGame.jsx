@@ -1,4 +1,5 @@
 import { Box, Typography, Button } from "@mui/material";
+import PropTypes from "prop-types";
 
 const CurrentGame = ({ currentGame, onLeaveGame }) => {
   return (
@@ -17,6 +18,13 @@ const CurrentGame = ({ currentGame, onLeaveGame }) => {
       </Button>
     </Box>
   );
+};
+CurrentGame.propTypes = {
+  currentGame: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    players: PropTypes.array.isRequired,
+  }).isRequired,
+  onLeaveGame: PropTypes.func.isRequired,
 };
 
 export default CurrentGame;
