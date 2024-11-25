@@ -25,40 +25,24 @@ const gameSlice = createSlice({
       state.currentGame.gameStatus = action.payload;
     },
     setDrawnNumber: (state, action) => {
-      console.log(action.payload);
-
       state.currentGame.drawnBalls.push(action.payload);
     },
     setMarkedNumber: (state, action) => {
-      console.log("setMarkedNumber", action.payload);
-      console.log(action.payload.userId);
-      console.log(action.payload.ballNumber);
+      const { userId, ballNumber } = action.payload;
+      const player = state.currentGame.players.find((p) => p.userId === userId);
 
-      const player = state.currentGame.players.find(
-        (player) => player.userId === action.payload.userId
-      );
-
-      console.log(player);
-
-      player.markedBalls.push(action.payload.ballNumber);
-    },
-    setPlayers: (state, action) => {
-      const { gameId, newPlayer } = action.payload;
-
-      // Verifica si el gameId coincide con el currentGame
-      if (state.currentGame && state.currentGame._id === gameId) {
-        // Agrega el nuevo jugador a la lista de jugadores
-        state.currentGame.players = [...state.currentGame.players, newPlayer];
+      if (player) {
+        // Solo agrega la bola si no está ya marcada
+        if (!player.markedBalls.includes(ballNumber)) {
+          player.markedBalls.push(ballNumber);
+        }
       }
-
-      console.log("jugador agregado ", state.currentGame);
     },
     setGameWithoutPlayer: (state, action) => {
       const playerId = action.payload;
       state.currentGame.players = state.currentGame.players.filter(
         (player) => player.userId !== playerId
       );
-      console.log("Player Removed");
     },
     deleteGame: (state, action) => {
       state.games = state.games.filter((game) => game._id !== action.payload);
@@ -76,7 +60,6 @@ export const {
   setDrawnNumber,
   setMarkedNumber,
   setGameWithoutPlayer,
-  setPlayers,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;

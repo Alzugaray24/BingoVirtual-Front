@@ -38,8 +38,6 @@ const Home = () => {
   const userId = useSelector((state) => state.auth.userId);
   const { isOpen, content, type } = useSelector((state) => state.modal);
 
-  console.log("home currentGame", currentGame);
-
   // State local para las funciones del modal
   const [onConfirmAction, setOnConfirmAction] = useState(null);
 
@@ -64,8 +62,6 @@ const Home = () => {
       showMessage("El juego fue eliminado exitosamente.", "info");
     },
     onGameJoined: (game) => {
-      console.log("game joined", game);
-
       dispatch(setCurrentGame(game));
       navigate(`/game-detail/${game._id}`);
     },

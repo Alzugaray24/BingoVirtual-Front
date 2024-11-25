@@ -13,11 +13,10 @@ const useSocket = ({
   onBallDrawn,
   onBallMarked,
   onGameWon,
-  onGameEnded,
   onPlayerJoined,
   onPlayerDisconnected,
   onPlayerRemoved,
-  onRedirectToHome, // Nuevo evento para redirigir a los jugadores
+  onRedirectToHome,
 }) => {
   useEffect(() => {
     const events = {
@@ -29,18 +28,19 @@ const useSocket = ({
       ballDrawn: onBallDrawn,
       ballMarked: onBallMarked,
       gameWon: onGameWon,
-      gameEnded: onGameEnded,
       playerJoined: onPlayerJoined,
       playerDisconnected: onPlayerDisconnected,
       playerRemoved: onPlayerRemoved,
-      redirectToHome: onRedirectToHome, // Manejo del nuevo evento
+      redirectToHome: onRedirectToHome,
       error: onError,
     };
 
+    // Subscribirse a los eventos
     Object.entries(events).forEach(([event, handler]) => {
       if (handler) socket.on(event, handler);
     });
 
+    // Desuscribirse de los eventos al desmontar el componente
     return () => {
       Object.entries(events).forEach(([event, handler]) => {
         if (handler) socket.off(event, handler);
@@ -56,45 +56,56 @@ const useSocket = ({
     onBallDrawn,
     onBallMarked,
     onGameWon,
-    onGameEnded,
     onPlayerJoined,
     onPlayerDisconnected,
     onPlayerRemoved,
-    onRedirectToHome, // Dependencia del nuevo evento
+    onRedirectToHome,
   ]);
 
-  const viewGames = useCallback(() => socket.emit("viewGames"), []);
-  const createGame = useCallback(() => socket.emit("createGame"), []);
-  const deleteGame = useCallback(
-    (gameId) => socket.emit("deleteGame", gameId),
+  // Funciones para emitir eventos al servidor
+  const emitEvent = useCallback(
+    (event, ...args) => socket.emit(event, ...args),
     []
+  );
+
+  const viewGames = useCallback(() => emitEvent("viewGames"), [emitEvent]);
+  const createGame = useCallback(() => emitEvent("createGame"), [emitEvent]);
+  const deleteGame = useCallback(
+    (gameId) => emitEvent("deleteGame", gameId),
+    [emitEvent]
   );
   const joinGame = useCallback(
-    (gameId, userId) => socket.emit("joinGame", gameId, userId),
-    []
+    (gameId, userId) => emitEvent("joinGame", gameId, userId),
+    [emitEvent]
   );
   const startGame = useCallback(
-    (gameId) => socket.emit("startGame", gameId),
-    []
+    (gameId) => emitEvent("startGame", gameId),
+    [emitEvent]
   );
-  const drawBall = useCallback((gameId) => socket.emit("drawBall", gameId), []);
+  const drawBall = useCallback(
+    (gameId) => emitEvent("drawBall", gameId),
+    [emitEvent]
+  );
   const markBall = useCallback(
     (gameId, userId, ballNumber) =>
-      socket.emit("markBall", gameId, userId, ballNumber),
-    []
+      emitEvent("markBall", gameId, userId, ballNumber),
+    [emitEvent]
   );
   const checkWinCondition = useCallback(
-    (gameId, userId) => socket.emit("checkWinCondition", gameId, userId),
-    []
+    (gameId, userId) => emitEvent("checkWinCondition", gameId, userId),
+    [emitEvent]
   );
-  const endGame = useCallback((gameId) => socket.emit("endGame", gameId), []);
+  const endGame = useCallback(
+    (gameId) => emitEvent("endGame", gameId),
+    [emitEvent]
+  );
   const notifyDisconnect = useCallback(
-    (userId) => socket.emit("playerDisconnected", userId),
-    []
+    (userId) => emitEvent("playerDisconnected", userId),
+    [emitEvent]
   );
   const removePlayer = useCallback(
-    (gameId, userId) => socket.emit("removePlayer", gameId, userId),
-    []
+    (gameId, userId) => emitEvent("removePlayer", gameId, userId),
+    [emitEvent]
   );
 
   return {

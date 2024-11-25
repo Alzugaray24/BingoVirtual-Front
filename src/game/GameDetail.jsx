@@ -26,7 +26,7 @@ const GameDetail = () => {
     (state) => state.successMessage
   );
 
-  console.log("currentGame", currentGame);
+  console.log(currentGame);
 
   const { startGame } = useSocket({
     onGameStarted: () => {
@@ -39,7 +39,6 @@ const GameDetail = () => {
       );
     },
     onPlayerJoined: (updatedGame) => {
-      console.log("Jugador se unió, juego actualizado: ", updatedGame);
       dispatch(setCurrentGame(updatedGame));
       dispatch(
         setSuccessMessage({

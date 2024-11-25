@@ -51,12 +51,18 @@ const GameInProgress = () => {
     },
     onGameWon: (winner) => {
       if (winner.winner) {
+        console.log(winner.winner);
+
         dispatch(
           setSuccessMessage({
             message: `¡Bingo! El ganador es ${winner.playerId}.`,
             messageType: "success",
           })
         );
+        setTimeout(() => {
+          dispatch(clearSuccessMessage());
+          navigate("/home");
+        }, 3000);
       }
     },
     onPlayerRemoved: (obj) => {

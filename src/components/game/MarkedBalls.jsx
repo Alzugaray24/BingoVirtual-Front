@@ -3,6 +3,8 @@ import { Box, Typography } from "@mui/material";
 import PropTypes from "prop-types";
 
 const MarkedBalls = ({ markedBalls }) => {
+  console.log(markedBalls);
+
   return (
     <Box
       mb={3}
