@@ -2,6 +2,8 @@ import { Box, Typography, Button } from "@mui/material";
 import PropTypes from "prop-types";
 
 const CurrentGame = ({ currentGame, onLeaveGame }) => {
+  console.log(currentGame);
+
   return (
     <Box sx={{ mt: 4, p: 3, border: "1px solid #333", borderRadius: "8px" }}>
       <Typography variant="h5">Juego actual: {currentGame.name}</Typography>

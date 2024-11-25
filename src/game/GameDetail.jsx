@@ -26,6 +26,8 @@ const GameDetail = () => {
     (state) => state.successMessage
   );
 
+  console.log("currentGame", currentGame);
+
   const { startGame } = useSocket({
     onGameStarted: () => {
       dispatch(setCurrentGameStatus("En Curso"));
