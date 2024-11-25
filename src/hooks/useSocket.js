@@ -14,10 +14,10 @@ const useSocket = ({
   onBallMarked,
   onGameWon,
   onGameEnded,
-  onNewPlayer,
   onPlayerJoined,
   onPlayerDisconnected,
   onPlayerRemoved,
+  onRedirectToHome, // Nuevo evento para redirigir a los jugadores
 }) => {
   useEffect(() => {
     const events = {
@@ -30,10 +30,10 @@ const useSocket = ({
       ballMarked: onBallMarked,
       gameWon: onGameWon,
       gameEnded: onGameEnded,
-      newPlayer: onNewPlayer,
       playerJoined: onPlayerJoined,
       playerDisconnected: onPlayerDisconnected,
       playerRemoved: onPlayerRemoved,
+      redirectToHome: onRedirectToHome, // Manejo del nuevo evento
       error: onError,
     };
 
@@ -57,10 +57,10 @@ const useSocket = ({
     onBallMarked,
     onGameWon,
     onGameEnded,
-    onNewPlayer,
     onPlayerJoined,
     onPlayerDisconnected,
     onPlayerRemoved,
+    onRedirectToHome, // Dependencia del nuevo evento
   ]);
 
   const viewGames = useCallback(() => socket.emit("viewGames"), []);

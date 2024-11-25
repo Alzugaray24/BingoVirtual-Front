@@ -22,8 +22,6 @@ const gameSlice = createSlice({
       state.currentGame = action.payload;
     },
     setCurrentGameStatus: (state, action) => {
-      console.log("entre");
-
       state.currentGame.gameStatus = action.payload;
     },
     setDrawnNumber: (state, action) => {
@@ -43,6 +41,17 @@ const gameSlice = createSlice({
       console.log(player);
 
       player.markedBalls.push(action.payload.ballNumber);
+    },
+    setPlayers: (state, action) => {
+      const { gameId, newPlayer } = action.payload;
+
+      // Verifica si el gameId coincide con el currentGame
+      if (state.currentGame && state.currentGame._id === gameId) {
+        // Agrega el nuevo jugador a la lista de jugadores
+        state.currentGame.players = [...state.currentGame.players, newPlayer];
+      }
+
+      console.log("jugador agregado ", state.currentGame);
     },
     setGameWithoutPlayer: (state, action) => {
       const playerId = action.payload;
@@ -67,6 +76,7 @@ export const {
   setDrawnNumber,
   setMarkedNumber,
   setGameWithoutPlayer,
+  setPlayers,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;

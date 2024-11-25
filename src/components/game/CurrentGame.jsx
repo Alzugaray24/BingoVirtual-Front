@@ -21,7 +21,7 @@ const CurrentGame = ({ currentGame, onLeaveGame }) => {
 };
 CurrentGame.propTypes = {
   currentGame: PropTypes.shape({
-    name: PropTypes.string.isRequired,
+    name: PropTypes.string,
     players: PropTypes.array.isRequired,
   }).isRequired,
   onLeaveGame: PropTypes.func.isRequired,

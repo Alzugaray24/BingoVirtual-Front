@@ -4,7 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { Box, CircularProgress, Typography, Card } from "@mui/material";
 import { setError, clearError } from "../store/slices/requestStatusSlice";
 import { setCurrentGameStatus } from "../store/slices/gameSlice";
-import { setSuccessMessage } from "../store/slices/successMessageSlice";
+import {
+  setSuccessMessage,
+  clearSuccessMessage,
+} from "../store/slices/successMessageSlice";
 import useSocket from "../hooks/useSocket";
 import SuccessMessage from "../components/game/SuccessMessage";
 import ErrorMessage from "../components/game/ErrorMessage";
@@ -12,6 +15,7 @@ import GameDetails from "../components/game/GameDetails";
 import CustomButton from "../components/game/CustomButton";
 import GameInProgress from "./GameInProgress";
 import GameTitle from "../components/game/GameTitle";
+import { setCurrentGame } from "../store/slices/gameSlice";
 
 const GameDetail = () => {
   const dispatch = useDispatch();
@@ -31,6 +35,17 @@ const GameDetail = () => {
           messageType: "success",
         })
       );
+    },
+    onPlayerJoined: (updatedGame) => {
+      console.log("Jugador se unió, juego actualizado: ", updatedGame);
+      dispatch(setCurrentGame(updatedGame));
+      dispatch(
+        setSuccessMessage({
+          message: `Un nuevo jugador se ha unido a la partida.`,
+          messageType: "success",
+        })
+      );
+      dispatch(clearSuccessMessage());
     },
     onError: (err) => {
       dispatch(setError(err.message || "Ocurrió un error inesperado."));

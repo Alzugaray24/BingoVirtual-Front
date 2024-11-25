@@ -17,7 +17,7 @@ const CustomModal = ({ isOpen, type, message, onConfirm, onCancel }) => {
           p: 4,
           textAlign: "center",
           border: "2px solid",
-          borderColor: type === "confirm" ? "#1976d2" : "#4caf50", // Color dinámico según el tipo
+          borderColor: type === "confirm" ? "#1976d2" : "#4caf50",
         }}
       >
         <Typography
@@ -25,7 +25,7 @@ const CustomModal = ({ isOpen, type, message, onConfirm, onCancel }) => {
           sx={{
             fontWeight: "bold",
             mb: 2,
-            color: type === "confirm" ? "#1976d2" : "#4caf50", // Estilo del título según el tipo
+            color: type === "confirm" ? "#1976d2" : "#4caf50",
           }}
         >
           {type === "confirm" ? "Confirmación" : "Información"}
@@ -78,11 +78,11 @@ const CustomModal = ({ isOpen, type, message, onConfirm, onCancel }) => {
 };
 
 CustomModal.propTypes = {
-  isOpen: PropTypes.bool.isRequired, // Controla si el modal está abierto
-  type: PropTypes.oneOf(["confirm", "info"]).isRequired, // Tipo de modal
-  message: PropTypes.string.isRequired, // Mensaje a mostrar
-  onConfirm: PropTypes.func, // Acción al presionar "Sí" (opcional)
-  onCancel: PropTypes.func.isRequired, // Acción al presionar "No" o cerrar
+  isOpen: PropTypes.bool.isRequired,
+  type: PropTypes.oneOf(["confirm", "info"]),
+  message: PropTypes.string,
+  onConfirm: PropTypes.func,
+  onCancel: PropTypes.func,
 };
 
 export default CustomModal;

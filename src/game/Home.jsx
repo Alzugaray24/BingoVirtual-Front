@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -25,7 +25,7 @@ import SuccessMessage from "../components/game/SuccessMessage";
 import ErrorMessage from "../components/game/ErrorMessage";
 import CustomButton from "../components/game/CustomButton";
 import GameTitle from "../components/game/GameTitle";
-import CustomModal from "../components/game/CustomModal"; // Importa el modal personalizado
+import CustomModal from "../components/game/CustomModal";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -37,6 +37,9 @@ const Home = () => {
   );
   const userId = useSelector((state) => state.auth.userId);
   const { isOpen, content, type } = useSelector((state) => state.modal);
+
+  // State local para las funciones del modal
+  const [onConfirmAction, setOnConfirmAction] = useState(null);
 
   const showMessage = (message, type) => {
     dispatch(setSuccessMessage({ message, messageType: type }));
@@ -82,16 +85,16 @@ const Home = () => {
 
   const handleDeleteGame = useCallback(
     (gameId) => {
+      setOnConfirmAction(() => () => {
+        deleteGameSocket(gameId);
+        dispatch(closeModal());
+      });
+
       dispatch(
         openModal({
           type: "confirm",
           content: {
             message: "¿Estás seguro de que deseas eliminar este juego?",
-            onConfirm: () => {
-              deleteGameSocket(gameId);
-              dispatch(closeModal());
-            },
-            onCancel: () => dispatch(closeModal()),
           },
         })
       );
@@ -174,10 +177,12 @@ const Home = () => {
           />
 
           {currentGame && (
-            <CurrentGame
-              currentGame={currentGame}
-              onLeaveGame={() => dispatch(setCurrentGame(null))}
-            />
+            <>
+              <CurrentGame
+                currentGame={currentGame}
+                onLeaveGame={() => dispatch(setCurrentGame(null))}
+              />
+            </>
           )}
         </>
       )}
@@ -186,8 +191,8 @@ const Home = () => {
         isOpen={isOpen}
         type={type}
         message={content?.message}
-        onConfirm={content?.onConfirm}
-        onCancel={content?.onCancel}
+        onConfirm={onConfirmAction}
+        onCancel={() => dispatch(closeModal())}
       />
     </Box>
   );

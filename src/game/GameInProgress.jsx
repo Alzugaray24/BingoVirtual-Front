@@ -50,12 +50,14 @@ const GameInProgress = () => {
       );
     },
     onGameWon: (winner) => {
-      dispatch(
-        setSuccessMessage({
-          message: `¡Bingo! El ganador es ${winner.name}.`,
-          messageType: "success",
-        })
-      );
+      if (winner.winner) {
+        dispatch(
+          setSuccessMessage({
+            message: `¡Bingo! El ganador es ${winner.playerId}.`,
+            messageType: "success",
+          })
+        );
+      }
     },
     onPlayerRemoved: (obj) => {
       dispatch(setGameWithoutPlayer(obj.playerId));
@@ -68,6 +70,9 @@ const GameInProgress = () => {
       setTimeout(() => {
         navigate("/home");
       }, 3000);
+    },
+    onRedirectToHome: () => {
+      navigate("/home");
     },
     onError: (err) => {
       dispatch(setError(err.message || "Ocurrió un error inesperado."));
@@ -104,10 +109,10 @@ const GameInProgress = () => {
     if (currentGame.drawnBalls.length < 75) {
       const interval = setInterval(() => {
         drawBall(currentGame._id);
-      }, 10000);
+      }, 100);
       return () => clearInterval(interval);
     }
-  }, [drawBall, currentGame._id]);
+  }, [drawBall, currentGame._id, currentGame.drawnBalls.length]);
 
   const handleCloseSnackbar = () => {
     dispatch(clearSuccessMessage());
