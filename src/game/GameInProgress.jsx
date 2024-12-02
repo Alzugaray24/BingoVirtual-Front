@@ -51,8 +51,6 @@ const GameInProgress = () => {
     },
     onGameWon: (winner) => {
       if (winner.winner) {
-        console.log(winner.winner);
-
         dispatch(
           setSuccessMessage({
             message: `¡Bingo! El ganador es ${winner.playerId}.`,

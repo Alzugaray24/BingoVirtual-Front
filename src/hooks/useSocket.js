@@ -16,6 +16,7 @@ const useSocket = ({
   onPlayerJoined,
   onPlayerDisconnected,
   onRedirectToHome,
+  onGameStartedAll,
 }) => {
   useEffect(() => {
     const events = {
@@ -30,15 +31,14 @@ const useSocket = ({
       playerJoined: onPlayerJoined,
       playerDisconnected: onPlayerDisconnected,
       redirectToHome: onRedirectToHome,
+      gameStartedAll: onGameStartedAll,
       error: onError,
     };
 
-    // Subscribirse a los eventos
     Object.entries(events).forEach(([event, handler]) => {
       if (handler) socket.on(event, handler);
     });
 
-    // Desuscribirse de los eventos al desmontar el componente
     return () => {
       Object.entries(events).forEach(([event, handler]) => {
         if (handler) socket.off(event, handler);
@@ -57,6 +57,7 @@ const useSocket = ({
     onPlayerJoined,
     onPlayerDisconnected,
     onRedirectToHome,
+    onGameStartedAll,
   ]);
 
   // Funciones para emitir eventos al servidor

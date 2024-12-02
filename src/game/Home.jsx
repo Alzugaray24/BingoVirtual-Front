@@ -73,6 +73,11 @@ const Home = () => {
       dispatch(setError(err.message || "Ocurrió un error inesperado."));
       setTimeout(() => dispatch(clearError()), 3000);
     },
+    onGameStartedAll: (here) => {
+      console.log("empezo la partida", here);
+
+      dispatch(updateGame(here));
+    },
   });
 
   useEffect(() => {
