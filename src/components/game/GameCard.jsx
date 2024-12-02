@@ -3,13 +3,7 @@ import { Box, Typography } from "@mui/material";
 import PropTypes from "prop-types";
 import AddCircleIcon from "@mui/icons-material/AddCircle"; // Ejemplo de ícono
 
-const GameCard = ({
-  game,
-  userId,
-  onJoinGame,
-  onDeleteGame,
-  onRemovePlayer,
-}) => {
+const GameCard = ({ game, userId, onJoinGame, onDeleteGame }) => {
   return (
     <Box
       sx={{
@@ -42,16 +36,6 @@ const GameCard = ({
             "&:hover": { backgroundColor: "#a71d2d" },
           }}
           onClick={() => onDeleteGame(game._id)}
-        />
-        <CustomButton
-          text="Remover Jugador"
-          color="error"
-          sx={{
-            backgroundColor: "#ffc107",
-            color: "#000",
-            "&:hover": { backgroundColor: "#d39e00" },
-          }}
-          onClick={() => onRemovePlayer(game._id, userId)}
         />
       </Box>
     </Box>

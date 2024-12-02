@@ -7,6 +7,7 @@ import {
   addGame,
   deleteGame,
   setCurrentGame,
+  updateGame,
 } from "../store/slices/gameSlice";
 import {
   setSuccessMessage,
@@ -20,7 +21,6 @@ import { CircularProgress, Box } from "@mui/material";
 import useSocket from "../hooks/useSocket";
 
 import GameList from "../components/game/GameList";
-import CurrentGame from "../components/game/CurrentGame";
 import SuccessMessage from "../components/game/SuccessMessage";
 import ErrorMessage from "../components/game/ErrorMessage";
 import CustomButton from "../components/game/CustomButton";
@@ -30,7 +30,7 @@ import CustomModal from "../components/game/CustomModal";
 const Home = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { games, currentGame } = useSelector((state) => state.game);
+  const { games } = useSelector((state) => state.game);
   const { loading, error } = useSelector((state) => state.requestStatus);
   const { successMessage, messageType } = useSelector(
     (state) => state.successMessage
@@ -38,7 +38,6 @@ const Home = () => {
   const userId = useSelector((state) => state.auth.userId);
   const { isOpen, content, type } = useSelector((state) => state.modal);
 
-  // State local para las funciones del modal
   const [onConfirmAction, setOnConfirmAction] = useState(null);
 
   const showMessage = (message, type) => {
@@ -50,7 +49,6 @@ const Home = () => {
     createGame,
     deleteGame: deleteGameSocket,
     joinGame,
-    removePlayer,
   } = useSocket({
     onGamesList: (data) => dispatch(setGames(data)),
     onGameCreated: (game) => {
@@ -68,8 +66,8 @@ const Home = () => {
     onPlayerDisconnected: (userId) => {
       showMessage(`El jugador con ID ${userId} se desconectó.`, "warning");
     },
-    onPlayerRemoved: (player) => {
-      showMessage(`El jugador con ID ${player.userId} fue removido.`, "info");
+    onPlayerJoined: (game) => {
+      dispatch(updateGame(game));
     },
     onError: (err) => {
       dispatch(setError(err.message || "Ocurrió un error inesperado."));
@@ -115,11 +113,6 @@ const Home = () => {
       joinGame(gameId, userId);
     },
     [dispatch, joinGame, userId]
-  );
-
-  const handleRemovePlayer = useCallback(
-    (gameId, userId) => removePlayer(gameId, userId),
-    [removePlayer]
   );
 
   useEffect(() => {
@@ -173,17 +166,7 @@ const Home = () => {
             userId={userId}
             onJoinGame={handleJoinGame}
             onDeleteGame={handleDeleteGame}
-            onRemovePlayer={handleRemovePlayer}
           />
-
-          {currentGame && (
-            <>
-              <CurrentGame
-                currentGame={currentGame}
-                onLeaveGame={() => dispatch(setCurrentGame(null))}
-              />
-            </>
-          )}
         </>
       )}
 

@@ -47,6 +47,18 @@ const gameSlice = createSlice({
     deleteGame: (state, action) => {
       state.games = state.games.filter((game) => game._id !== action.payload);
     },
+    updateGame: (state, action) => {
+      const updatedGame = action.payload;
+      const index = state.games.findIndex(
+        (game) => game._id === updatedGame._id
+      );
+
+      if (index !== -1) {
+        state.games[index] = updatedGame;
+      } else {
+        state.games.push(updatedGame);
+      }
+    },
   },
 });
 
@@ -60,6 +72,7 @@ export const {
   setDrawnNumber,
   setMarkedNumber,
   setGameWithoutPlayer,
+  updateGame,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;

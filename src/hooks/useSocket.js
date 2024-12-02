@@ -15,7 +15,6 @@ const useSocket = ({
   onGameWon,
   onPlayerJoined,
   onPlayerDisconnected,
-  onPlayerRemoved,
   onRedirectToHome,
 }) => {
   useEffect(() => {
@@ -30,7 +29,6 @@ const useSocket = ({
       gameWon: onGameWon,
       playerJoined: onPlayerJoined,
       playerDisconnected: onPlayerDisconnected,
-      playerRemoved: onPlayerRemoved,
       redirectToHome: onRedirectToHome,
       error: onError,
     };
@@ -58,7 +56,6 @@ const useSocket = ({
     onGameWon,
     onPlayerJoined,
     onPlayerDisconnected,
-    onPlayerRemoved,
     onRedirectToHome,
   ]);
 
@@ -103,10 +100,6 @@ const useSocket = ({
     (userId) => emitEvent("playerDisconnected", userId),
     [emitEvent]
   );
-  const removePlayer = useCallback(
-    (gameId, userId) => emitEvent("removePlayer", gameId, userId),
-    [emitEvent]
-  );
 
   return {
     viewGames,
@@ -119,7 +112,6 @@ const useSocket = ({
     checkWinCondition,
     endGame,
     notifyDisconnect,
-    removePlayer,
   };
 };
 
