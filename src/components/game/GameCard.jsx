@@ -5,8 +5,6 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"; // Ícono para "Finalizado"
 
 const GameCard = ({ game, userId, onJoinGame, onDeleteGame }) => {
-  console.log("actualizado", game);
-
   return (
     <Box
       sx={{

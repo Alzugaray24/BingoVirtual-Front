@@ -17,6 +17,8 @@ const useSocket = ({
   onPlayerDisconnected,
   onRedirectToHome,
   onGameStartedAll,
+  onGameEndedAll,
+  onPlayerRemoved,
 }) => {
   useEffect(() => {
     const events = {
@@ -32,6 +34,8 @@ const useSocket = ({
       playerDisconnected: onPlayerDisconnected,
       redirectToHome: onRedirectToHome,
       gameStartedAll: onGameStartedAll,
+      gameEndedAll: onGameEndedAll,
+      playerRemoved: onPlayerRemoved,
       error: onError,
     };
 
@@ -58,6 +62,8 @@ const useSocket = ({
     onPlayerDisconnected,
     onRedirectToHome,
     onGameStartedAll,
+    onPlayerRemoved,
+    onGameEndedAll,
   ]);
 
   // Funciones para emitir eventos al servidor
