@@ -36,7 +36,7 @@ const GameInProgress = () => {
 
   const player = currentGame.players.find((player) => player.userId === userId);
 
-  const { drawBall, markBall, checkWinCondition } = useSocket({
+  const { drawBall, markBall, checkWinCondition, endGame } = useSocket({
     onBallDrawn: (newBall) => {
       dispatch(setDrawnNumber(newBall));
     },
@@ -51,6 +51,7 @@ const GameInProgress = () => {
     },
     onGameWon: (winner) => {
       if (winner.winner) {
+        endGame(currentGame._id);
         dispatch(
           setSuccessMessage({
             message: `¡Bingo! El ganador es ${winner.playerId}.`,

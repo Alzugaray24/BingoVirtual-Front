@@ -8,7 +8,7 @@ const AppRouter = () => {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/home" element={<Home />} />
+      <Route path="/" element={<Home />} />
       <Route path="/game-detail/:gameId" element={<GameDetail />} />
       <Route path="*" element={<div>404 - Página no encontrada</div>} />
     </Routes>

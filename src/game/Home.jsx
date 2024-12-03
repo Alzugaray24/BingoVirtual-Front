@@ -41,6 +41,7 @@ const Home = () => {
   const [onConfirmAction, setOnConfirmAction] = useState(null);
 
   const showMessage = (message, type) => {
+    console.log("Mostrando mensaje:", message, "Tipo:", type);
     dispatch(setSuccessMessage({ message, messageType: type }));
   };
 
@@ -50,45 +51,66 @@ const Home = () => {
     deleteGame: deleteGameSocket,
     joinGame,
   } = useSocket({
-    onGamesList: (data) => dispatch(setGames(data)),
+    onGamesList: (data) => {
+      console.log("Recibida lista de juegos:", data);
+      dispatch(setGames(data));
+    },
     onGameCreated: (game) => {
+      console.log("Juego creado:", game);
       dispatch(addGame(game));
       showMessage("Un nuevo juego ha sido creado.", "success");
     },
     onGameDeleted: (gameId) => {
+      console.log("Juego eliminado:", gameId);
       dispatch(deleteGame(gameId));
       showMessage("El juego fue eliminado exitosamente.", "info");
     },
     onGameJoined: (game) => {
+      console.log("Juego unido:", game);
       dispatch(setCurrentGame(game));
       navigate(`/game-detail/${game._id}`);
     },
-    onPlayerDisconnected: (userId) => {
-      showMessage(`El jugador con ID ${userId} se desconectó.`, "warning");
+    onPlayerDisconnected: (disconnectedUserId) => {
+      console.log("Jugador desconectado:", disconnectedUserId);
+      showMessage(
+        `El jugador con ID ${disconnectedUserId} se desconectó.`,
+        "warning"
+      );
     },
     onPlayerJoined: (game) => {
+      console.log("Jugador se unió al juego:", game);
       dispatch(updateGame(game));
     },
     onError: (err) => {
+      console.error("Error recibido:", err.message || "Ocurrió un error");
       dispatch(setError(err.message || "Ocurrió un error inesperado."));
       setTimeout(() => dispatch(clearError()), 3000);
     },
-    onGameStartedAll: (here) => {
-      console.log("empezo la partida", here);
-
-      dispatch(updateGame(here));
+    onGameStartedAll: (gameStarted) => {
+      console.log("Juego iniciado globalmente:", gameStarted);
+      dispatch(updateGame(gameStarted));
+    },
+    onGameEndedAll: (gameEnded) => {
+      console.log("Juego finalizado globalmente:", gameEnded);
+      dispatch(updateGame(gameEnded));
     },
   });
 
   useEffect(() => {
+    console.log("Cargando lista de juegos...");
     viewGames();
   }, [viewGames]);
 
-  const handleCreateGame = useCallback(() => createGame(), [createGame]);
+  const handleCreateGame = useCallback(() => {
+    console.log("Creando un nuevo juego...");
+    createGame();
+  }, [createGame]);
 
   const handleDeleteGame = useCallback(
     (gameId) => {
+      console.log("Intentando eliminar juego con ID:", gameId);
       setOnConfirmAction(() => () => {
+        console.log("Confirmando eliminación de juego con ID:", gameId);
         deleteGameSocket(gameId);
         dispatch(closeModal());
       });
@@ -108,6 +130,7 @@ const Home = () => {
   const handleJoinGame = useCallback(
     (gameId) => {
       if (!userId) {
+        console.error("Error: ID del usuario no definido.");
         dispatch(
           setError(
             "El ID del usuario no está definido. No se puede unir al juego."
@@ -115,6 +138,7 @@ const Home = () => {
         );
         return;
       }
+      console.log("Uniéndose al juego con ID:", gameId, "Usuario ID:", userId);
       joinGame(gameId, userId);
     },
     [dispatch, joinGame, userId]
@@ -122,7 +146,9 @@ const Home = () => {
 
   useEffect(() => {
     if (successMessage) {
+      console.log("Mensaje de éxito recibido:", successMessage);
       const timeout = setTimeout(() => {
+        console.log("Limpiando mensaje de éxito.");
         dispatch(clearSuccessMessage());
       }, 1000);
       return () => clearTimeout(timeout);

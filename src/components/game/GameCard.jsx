@@ -2,7 +2,6 @@ import CustomButton from "../game/CustomButton";
 import { Box, Typography } from "@mui/material";
 import PropTypes from "prop-types";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle"; // Ícono para "Finalizado"
 
 const GameCard = ({ game, userId, onJoinGame, onDeleteGame }) => {
   return (
@@ -31,28 +30,6 @@ const GameCard = ({ game, userId, onJoinGame, onDeleteGame }) => {
                 "&:hover": { backgroundColor: "#0056b3" },
               }}
               onClick={() => onJoinGame(game._id, userId)}
-            />
-            <CustomButton
-              text="Eliminar"
-              color="secondary"
-              sx={{
-                backgroundColor: "#dc3545",
-                "&:hover": { backgroundColor: "#a71d2d" },
-              }}
-              onClick={() => onDeleteGame(game._id)}
-            />
-          </>
-        ) : game.gameStatus === "finalizado" ? (
-          <>
-            <CustomButton
-              disabled
-              text="Finalizado"
-              color="success"
-              icon={<CheckCircleIcon />} // Ícono para "Finalizado"
-              sx={{
-                backgroundColor: "#28a745",
-                "&:hover": { backgroundColor: "#218838" },
-              }}
             />
             <CustomButton
               text="Eliminar"
