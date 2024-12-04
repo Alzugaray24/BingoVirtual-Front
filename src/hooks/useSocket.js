@@ -1,7 +1,7 @@
 import { useEffect, useCallback } from "react";
 import io from "socket.io-client";
 
-const socket = io("https://bingovirtual-back.onrender.com");
+const socket = io("https://bingovirtual-back.onrender.com/");
 
 const useSocket = ({
   onGameCreated,
