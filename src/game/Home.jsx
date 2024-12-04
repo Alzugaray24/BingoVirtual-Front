@@ -136,6 +136,7 @@ const Home = () => {
             "El ID del usuario no está definido. No se puede unir al juego."
           )
         );
+        return;
       }
       console.log("Uniéndose al juego con ID:", gameId, "Usuario ID:", userId);
       joinGame(gameId, userId);
