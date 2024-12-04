@@ -114,7 +114,7 @@ const GameInProgress = () => {
     if (currentGame.drawnBalls.length < 75) {
       const interval = setInterval(() => {
         drawBall(currentGame._id);
-      }, 100);
+      }, 3000);
       return () => clearInterval(interval);
     }
   }, [drawBall, currentGame._id, currentGame.drawnBalls.length]);
